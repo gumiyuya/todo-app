@@ -17,8 +17,6 @@ export default function Index() {
   const [tasks, setTasks] = useState<Task[]>([]);
   // 入力フィールドのテキスト
   const [inputText, setInputText] = useState('');
-  // 初回読み込み完了フラグ（保存処理の制御に使用）
-  const [isLoaded, setIsLoaded] = useState(false);
 
   // AsyncStorageからタスクを読み込む
   // JSON文字列をパースし、日付文字列をDateオブジェクトに変換する
@@ -37,8 +35,6 @@ export default function Index() {
       }
     } catch (error) {
       console.error('Failed to load tasks:', error);
-    } finally {
-      setIsLoaded(true);
     }
   };
 
@@ -47,21 +43,13 @@ export default function Index() {
     loadTasks();
   }, []);
 
-  // タスクをAsyncStorageに保存する
-  const saveTasks = async () => {
+  const saveTasks = async (newTasks: Task[]) => {
     try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newTasks));
     } catch (error) {
       console.error('Failed to save tasks:', error);
     }
   };
-
-  // タスクが変更されたら自動保存（初回読み込み後のみ）
-  useEffect(() => {
-    if (isLoaded) {
-      saveTasks();
-    }
-  }, [tasks, isLoaded]);
 
   // 日付を「月/日」形式にフォーマットする
   // @param date - フォーマットする日付
@@ -71,7 +59,6 @@ export default function Index() {
     return `${d.getMonth() + 1}/${d.getDate()}`;
   };
 
-  // タスクを追加する
   const addTask = () => {
     if (inputText.trim() === '') return;
 
@@ -83,29 +70,31 @@ export default function Index() {
       completedAt: null,
     };
 
-    // 新しいタスクを先頭に追加
-    setTasks([newTask, ...tasks]);
+    // 新しいタスクを一番上に表示するため先頭に追加
+    const newTasks = [newTask, ...tasks];
+    setTasks(newTasks);
+    saveTasks(newTasks);
     setInputText('');
   };
 
-  // タスクの完了状態を切り替える
   const toggleTask = (id: string) => {
-    setTasks(
-      tasks.map((task) => {
-        if (task.id !== id) return task;
+    const newTasks = tasks.map((task) => {
+      if (task.id !== id) return task;
 
-        return {
-          ...task,
-          isCompleted: !task.isCompleted,
-          completedAt: !task.isCompleted ? new Date() : null,
-        };
-      })
-    );
+      return {
+        ...task,
+        isCompleted: !task.isCompleted,
+        completedAt: !task.isCompleted ? new Date() : null,
+      };
+    });
+    setTasks(newTasks);
+    saveTasks(newTasks);
   };
 
-  // タスクを削除する
   const deleteTask = (id: string) => {
-    setTasks(tasks.filter((task) => task.id !== id));
+    const newTasks = tasks.filter((task) => task.id !== id);
+    setTasks(newTasks);
+    saveTasks(newTasks);
   };
 
   // FlatListの各タスクアイテムをレンダリングする
@@ -116,7 +105,9 @@ export default function Index() {
       </TouchableOpacity>
 
       <View style={styles.taskContent}>
-        <Text style={[styles.taskTitle, item.isCompleted && styles.completedTask]}>{item.title}</Text>
+        <Text style={[styles.taskTitle, item.isCompleted && styles.completedTask]}>
+          {item.title}
+        </Text>
         <Text style={[styles.taskDate, item.isCompleted && styles.completedTask]}>
           {item.isCompleted && item.completedAt
             ? `完了: ${formatDate(item.completedAt)}`
@@ -135,6 +126,7 @@ export default function Index() {
       <Text style={styles.header}>TODO</Text>
 
       <View style={styles.inputContainer}>
+        {/* キーボードのエンターキーを押したらタスクを追加 */}
         <TextInput
           style={styles.input}
           value={inputText}
@@ -142,12 +134,18 @@ export default function Index() {
           placeholder="タスクを入力..."
           onSubmitEditing={addTask}
         />
+        {/* 追加ボタンを押したらタスクを追加 */}
         <TouchableOpacity style={styles.addButton} onPress={addTask}>
           <Text style={styles.addButtonText}>+</Text>
         </TouchableOpacity>
       </View>
 
-      <FlatList data={tasks} renderItem={renderTask} keyExtractor={(item) => item.id} style={styles.list} />
+      <FlatList
+        data={tasks}
+        renderItem={renderTask}
+        keyExtractor={(item) => item.id}
+        style={styles.list}
+      />
     </View>
   );
 }
