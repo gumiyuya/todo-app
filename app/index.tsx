@@ -51,12 +51,14 @@ export default function Index() {
     }
   };
 
-  // 日付を「月/日」形式にフォーマットする
-  // @param date - フォーマットする日付
-  // @returns フォーマットされた日付文字列（例: "1/22"）
-  const formatDate = (date: Date) => {
+  // 日時を「月/日 時:分」形式にフォーマットする
+  const formatDateTime = (date: Date) => {
     const d = new Date(date);
-    return `${d.getMonth() + 1}/${d.getDate()}`;
+    const month = d.getMonth() + 1;
+    const day = d.getDate();
+    const hours = d.getHours().toString().padStart(2, '0');
+    const minutes = d.getMinutes().toString().padStart(2, '0');
+    return `${month}/${day} ${hours}:${minutes}`;
   };
 
   const addTask = () => {
@@ -110,8 +112,8 @@ export default function Index() {
         </Text>
         <Text style={[styles.taskDate, item.isCompleted && styles.completedTask]}>
           {item.isCompleted && item.completedAt
-            ? `完了: ${formatDate(item.completedAt)}`
-            : `追加: ${formatDate(item.createdAt)}`}
+            ? `完了: ${formatDateTime(item.completedAt)} / 追加: ${formatDateTime(item.createdAt)}`
+            : `追加: ${formatDateTime(item.createdAt)}`}
         </Text>
       </View>
 
