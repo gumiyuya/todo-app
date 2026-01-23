@@ -5,6 +5,7 @@
 // - タスクの作成日時・完了日時の表示
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Task } from '../types/task';
@@ -51,15 +52,7 @@ export default function Index() {
     }
   };
 
-  // 日時を「月/日 時:分」形式にフォーマットする
-  const formatDateTime = (date: Date) => {
-    const d = new Date(date);
-    const month = d.getMonth() + 1;
-    const day = d.getDate();
-    const hours = d.getHours().toString().padStart(2, '0');
-    const minutes = d.getMinutes().toString().padStart(2, '0');
-    return `${month}/${day} ${hours}:${minutes}`;
-  };
+  const formatDateTime = (date: Date) => format(date, 'M/d HH:mm');
 
   const addTask = () => {
     if (inputText.trim() === '') return;
