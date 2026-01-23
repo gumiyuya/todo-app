@@ -8,6 +8,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { Task } from '../types/task';
 
 // AsyncStorageで使用するキー
@@ -92,32 +94,37 @@ export default function Index() {
     saveTasks(newTasks);
   };
 
+  // スワイプ時に右側に表示される削除ボタン
+  const renderRightActions = (id: string) => (
+    <TouchableOpacity style={styles.deleteAction} onPress={() => deleteTask(id)}>
+      <Text style={styles.deleteActionText}>削除</Text>
+    </TouchableOpacity>
+  );
+
   // FlatListの各タスクアイテムをレンダリングする
   const renderTask = ({ item }: { item: Task }) => (
-    <View style={styles.taskItem}>
-      <TouchableOpacity style={styles.checkbox} onPress={() => toggleTask(item.id)}>
-        <Text style={styles.checkboxText}>{item.isCompleted ? '☑' : '☐'}</Text>
-      </TouchableOpacity>
+    <ReanimatedSwipeable renderRightActions={() => renderRightActions(item.id)}>
+      <View style={styles.taskItem}>
+        <TouchableOpacity style={styles.checkbox} onPress={() => toggleTask(item.id)}>
+          <Text style={styles.checkboxText}>{item.isCompleted ? '☑' : '☐'}</Text>
+        </TouchableOpacity>
 
-      <View style={styles.taskContent}>
-        <Text style={[styles.taskTitle, item.isCompleted && styles.completedTask]}>
-          {item.title}
-        </Text>
-        <Text style={[styles.taskDate, item.isCompleted && styles.completedTask]}>
-          {item.isCompleted && item.completedAt
-            ? `完了: ${formatDateTime(item.completedAt)} / 追加: ${formatDateTime(item.createdAt)}`
-            : `追加: ${formatDateTime(item.createdAt)}`}
-        </Text>
+        <View style={styles.taskContent}>
+          <Text style={[styles.taskTitle, item.isCompleted && styles.completedTask]}>
+            {item.title}
+          </Text>
+          <Text style={[styles.taskDate, item.isCompleted && styles.completedTask]}>
+            {item.isCompleted && item.completedAt
+              ? `完了: ${formatDateTime(item.completedAt)} / 追加: ${formatDateTime(item.createdAt)}`
+              : `追加: ${formatDateTime(item.createdAt)}`}
+          </Text>
+        </View>
       </View>
-
-      <TouchableOpacity style={styles.deleteButton} onPress={() => deleteTask(item.id)}>
-        <Text style={styles.deleteButtonText}>🗑</Text>
-      </TouchableOpacity>
-    </View>
+    </ReanimatedSwipeable>
   );
 
   return (
-    <View style={styles.container}>
+    <GestureHandlerRootView style={styles.container}>
       <Text style={styles.header}>TODO</Text>
 
       <View style={styles.inputContainer}>
@@ -141,7 +148,7 @@ export default function Index() {
         keyExtractor={(item) => item.id}
         style={styles.list}
       />
-    </View>
+    </GestureHandlerRootView>
   );
 }
 
@@ -203,8 +210,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 15,
+    paddingHorizontal: 5,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
+    backgroundColor: '#fff',
   },
   /** チェックボックスエリア */
   checkbox: {
@@ -236,13 +245,15 @@ const styles = StyleSheet.create({
   completedTask: {
     color: '#ccc',
   },
-  /** 削除ボタン */
-  deleteButton: {
-    marginLeft: 10,
-    padding: 5,
+  /** スワイプ時に表示される削除ボタン */
+  deleteAction: {
+    backgroundColor: '#ff3b30',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
   },
-  /** 削除ボタンのテキスト（ゴミ箱アイコン） */
-  deleteButtonText: {
-    fontSize: 18,
+  deleteActionText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
