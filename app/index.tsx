@@ -25,7 +25,6 @@ export default function Index() {
   const [inputText, setInputText] = useState('');
 
   // AsyncStorageからタスクを読み込む
-  // JSON文字列をパースし、日付文字列をDateオブジェクトに変換する
   const loadTasks = async () => {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
@@ -168,7 +167,6 @@ export default function Index() {
   );
 }
 
-// スタイル定義
 const styles = StyleSheet.create({
   // ===== コンテナ・レイアウト =====
   /** メインコンテナ */
