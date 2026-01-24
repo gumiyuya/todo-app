@@ -31,16 +31,6 @@ export default function SwipeableRow({
   const contextX = useSharedValue(0);
   // 現在開いているかどうか
   const isOpen = useSharedValue(false);
-  // 閉じる処理
-  const closeSwipeable = () => {
-    if (isOpen.value) {
-      translateX.value = withTiming(0, { duration: 200 });
-      isOpen.value = false;
-      if (onSwipeClose) {
-        onSwipeClose();
-      }
-    }
-  };
 
   // パンで開いたり閉じたり
   const panGesture = Gesture.Pan()
@@ -68,13 +58,26 @@ export default function SwipeableRow({
           }
         }
       } else {
-        scheduleOnRN(closeSwipeable);
+        // 閉じる
+        translateX.value = withTiming(0, { duration: 200 });
+        if (isOpen.value) {
+          isOpen.value = false;
+          if (onSwipeClose) {
+            scheduleOnRN(onSwipeClose);
+          }
+        }
       }
     });
 
   // タップは閉じる専門
   const tapGesture = Gesture.Tap().onEnd(() => {
-    scheduleOnRN(closeSwipeable);
+    if (isOpen.value) {
+      translateX.value = withTiming(0, { duration: 200 });
+      isOpen.value = false;
+      if (onSwipeClose) {
+        scheduleOnRN(onSwipeClose);
+      }
+    }
   });
 
   // パンとタップを同時に使用
