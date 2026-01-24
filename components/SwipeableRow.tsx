@@ -4,12 +4,8 @@
 import { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, {
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 
 // 削除ボタンの幅
 const ACTION_WIDTH = 80;
@@ -68,17 +64,17 @@ export default function SwipeableRow({
         if (!isOpen.value) {
           isOpen.value = true;
           if (onSwipeOpen) {
-            runOnJS(onSwipeOpen)();
+            scheduleOnRN(onSwipeOpen);
           }
         }
       } else {
-        runOnJS(closeSwipeable)();
+        scheduleOnRN(closeSwipeable);
       }
     });
 
   // タップは閉じる専門
   const tapGesture = Gesture.Tap().onEnd(() => {
-    runOnJS(closeSwipeable)();
+    scheduleOnRN(closeSwipeable);
   });
 
   // パンとタップを同時に使用
