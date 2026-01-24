@@ -8,7 +8,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { Task } from '../types/task';
 
@@ -124,7 +123,7 @@ export default function Index() {
   );
 
   return (
-    <GestureHandlerRootView style={styles.container}>
+    <View style={styles.container}>
       <Text style={styles.header}>TODO</Text>
 
       <View style={styles.inputContainer}>
@@ -148,7 +147,7 @@ export default function Index() {
         keyExtractor={(item) => item.id}
         style={styles.list}
       />
-    </GestureHandlerRootView>
+    </View>
   );
 }
 
