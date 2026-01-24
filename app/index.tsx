@@ -7,8 +7,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import DraggableFlatList, {
+  RenderItemParams,
+  ScaleDecorator,
+} from 'react-native-draggable-flatlist';
+import SwipeableRow from '../components/SwipeableRow';
 import { Task } from '../types/task';
 
 // AsyncStorageで使用するキー
@@ -93,6 +97,12 @@ export default function Index() {
     saveTasks(newTasks);
   };
 
+  // 並び替え完了時の処理
+  const onDragEnd = ({ data }: { data: Task[] }) => {
+    setTasks(data);
+    saveTasks(data);
+  };
+
   // スワイプ時に右側に表示される削除ボタン
   const renderRightActions = (id: string) => (
     <TouchableOpacity style={styles.deleteAction} onPress={() => deleteTask(id)}>
@@ -100,26 +110,32 @@ export default function Index() {
     </TouchableOpacity>
   );
 
-  // FlatListの各タスクアイテムをレンダリングする
-  const renderTask = ({ item }: { item: Task }) => (
-    <ReanimatedSwipeable renderRightActions={() => renderRightActions(item.id)}>
-      <View style={styles.taskItem}>
-        <TouchableOpacity style={styles.checkbox} onPress={() => toggleTask(item.id)}>
-          <Text style={styles.checkboxText}>{item.isCompleted ? '☑' : '☐'}</Text>
-        </TouchableOpacity>
+  // DraggableFlatListの各タスクアイテムをレンダリングする
+  const renderTask = ({ item, drag, isActive }: RenderItemParams<Task>) => (
+    <ScaleDecorator>
+      <SwipeableRow renderRightActions={() => renderRightActions(item.id)}>
+        <View style={[styles.taskItem, isActive && styles.taskItemDragging]}>
+          <TouchableOpacity style={styles.checkbox} onPress={() => toggleTask(item.id)}>
+            <Text style={styles.checkboxText}>{item.isCompleted ? '☑' : '☐'}</Text>
+          </TouchableOpacity>
 
-        <View style={styles.taskContent}>
-          <Text style={[styles.taskTitle, item.isCompleted && styles.completedTask]}>
-            {item.title}
-          </Text>
-          <Text style={[styles.taskDate, item.isCompleted && styles.completedTask]}>
-            {item.isCompleted && item.completedAt
-              ? `完了: ${formatDateTime(item.completedAt)} / 追加: ${formatDateTime(item.createdAt)}`
-              : `追加: ${formatDateTime(item.createdAt)}`}
-          </Text>
+          <View style={styles.taskContent}>
+            <Text style={[styles.taskTitle, item.isCompleted && styles.completedTask]}>
+              {item.title}
+            </Text>
+            <Text style={[styles.taskDate, item.isCompleted && styles.completedTask]}>
+              {item.isCompleted && item.completedAt
+                ? `完了: ${formatDateTime(item.completedAt)} / 追加: ${formatDateTime(item.createdAt)}`
+                : `追加: ${formatDateTime(item.createdAt)}`}
+            </Text>
+          </View>
+
+          <TouchableOpacity onPressIn={drag} style={styles.dragHandleContainer}>
+            <Text style={styles.dragHandle}>☰</Text>
+          </TouchableOpacity>
         </View>
-      </View>
-    </ReanimatedSwipeable>
+      </SwipeableRow>
+    </ScaleDecorator>
   );
 
   return (
@@ -141,11 +157,12 @@ export default function Index() {
         </TouchableOpacity>
       </View>
 
-      <FlatList
+      <DraggableFlatList
         data={tasks}
         renderItem={renderTask}
         keyExtractor={(item) => item.id}
-        style={styles.list}
+        onDragEnd={onDragEnd}
+        containerStyle={styles.list}
       />
     </View>
   );
@@ -206,6 +223,7 @@ const styles = StyleSheet.create({
   },
   /** 各タスクアイテムのコンテナ */
   taskItem: {
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 15,
@@ -254,5 +272,24 @@ const styles = StyleSheet.create({
   deleteActionText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  /** ドラッグ中のタスクアイテム */
+  taskItemDragging: {
+    backgroundColor: '#f0f0f0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  /** ドラッグハンドルのコンテナ */
+  dragHandleContainer: {
+    padding: 10,
+    marginLeft: 5,
+  },
+  /** ドラッグハンドル */
+  dragHandle: {
+    fontSize: 20,
+    color: '#ccc',
   },
 });
