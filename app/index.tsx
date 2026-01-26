@@ -147,7 +147,7 @@ export default function Index() {
           style={styles.input}
           value={inputText}
           onChangeText={setInputText}
-          placeholder="タスクを入力..."
+          placeholder="タスクを入力してください..."
           onSubmitEditing={addTask}
         />
         {/* 追加ボタンを押したらタスクを追加 */}
