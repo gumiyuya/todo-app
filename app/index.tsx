@@ -19,6 +19,10 @@ import { Task } from '../types/task';
 const STORAGE_KEY = 'TODO_TASKS';
 
 export default function Index() {
+  // CI失敗テスト用: 型エラー（stringにnumberを代入）
+  const wrongType: string = 12345;
+  console.log(wrongType);
+
   // タスク一覧
   const [tasks, setTasks] = useState<Task[]>([]);
   // 入力フィールドのテキスト
