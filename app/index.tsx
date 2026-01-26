@@ -19,6 +19,9 @@ import { Task } from '../types/task';
 const STORAGE_KEY = 'TODO_TASKS';
 
 export default function Index() {
+  // CI失敗テスト用: 未使用変数
+  const unusedVariable = 'この変数は使われていません';
+
   // タスク一覧
   const [tasks, setTasks] = useState<Task[]>([]);
   // 入力フィールドのテキスト
