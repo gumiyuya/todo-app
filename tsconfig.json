@@ -1,21 +1,49 @@
 {
+  // Expo の推奨ベース設定を継承
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    // -------------------------------------------------------------------------
+    // strict: true で有効になるオプション群
+    //   - strictNullChecks: null/undefined を厳密にチェック
+    //   - strictFunctionTypes: 関数の引数型を厳密にチェック
+    //   - strictBindCallApply: bind/call/apply の型チェック
+    //   - strictPropertyInitialization: クラスプロパティの初期化を強制
+    //   - noImplicitAny: 暗黙の any を禁止
+    //   - noImplicitThis: 暗黙の this を禁止
+    //   - alwaysStrict: 全ファイルに 'use strict' を適用
+    //   - useUnknownInCatchVariables: catch(e) の e を unknown 型に
+    // -------------------------------------------------------------------------
     "strict": true,
+
+    // -------------------------------------------------------------------------
+    // 型定義の読み込み
+    //   - jest: describe, it, expect 等のグローバル変数
+    //   - @testing-library/jest-dom: toBeInTheDocument 等のカスタムマッチャー
+    // -------------------------------------------------------------------------
+    "types": ["jest", "@testing-library/jest-dom"],
+
+    // -------------------------------------------------------------------------
+    // パスエイリアス: @/ で プロジェクトルートを参照可能に
+    // 例: import { Task } from '@/types' → ./types から import
+    // 深いネストからの相対パス地獄を回避: ../../.. → @/
+    // -------------------------------------------------------------------------
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "app-example"
-  ]
+
+  // ---------------------------------------------------------------------------
+  // TypeScript がチェック対象とするファイル
+  //   - **/*.ts, **/*.tsx: 全ての TypeScript ファイル
+  //   - .expo/types/**/*.ts: Expo が自動生成する型定義
+  //   - expo-env.d.ts: Expo Router の Typed Routes 用（自動生成）
+  // ---------------------------------------------------------------------------
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
+
+  // ---------------------------------------------------------------------------
+  // チェック対象から除外
+  //   - node_modules: 依存パッケージ（skipLibCheck でも対応可だが明示的に除外）
+  //   - app-example: Expo テンプレートのサンプルコード（不要なら削除可）
+  // ---------------------------------------------------------------------------
+  "exclude": ["node_modules"]
 }
