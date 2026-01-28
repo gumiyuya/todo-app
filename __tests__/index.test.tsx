@@ -110,4 +110,22 @@ describe('Index (メイン画面)', () => {
       expect(parsed[1].title).toBe('タスク1');
     });
   });
+
+  it('タスクを削除できる', async () => {
+    render(<Index />);
+
+    const input = screen.getByPlaceholderText('タスクを入力してください...');
+    fireEvent.change(input, { target: { value: 'タスク1' } });
+    fireEvent.click(screen.getByText('+'));
+
+    const deleteButton = screen.getByText('削除');
+    await waitFor(() => {
+      expect(deleteButton).toBeInTheDocument();
+    });
+
+    fireEvent.click(deleteButton);
+    await waitFor(() => {
+      expect(screen.queryByText('タスク1')).not.toBeInTheDocument();
+    });
+  });
 });
