@@ -1,50 +1,67 @@
-# Welcome to your Expo app 👋
+# TODO App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+React Native (Expo) 学習用に作成した TODO アプリ。
 
-## Get started
+## 機能
 
-1. Install dependencies
+- タスクの追加・完了・削除
+- スワイプで削除
+- ドラッグ&ドロップで並び替え
+- AsyncStorage によるデータ永続化
 
-   ```bash
-   npm install
-   ```
+## 技術スタック
 
-2. Start the app
+- React Native / Expo
+- TypeScript
+- react-native-gesture-handler
+- react-native-reanimated
+- react-native-draggable-flatlist
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## セットアップ
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## テスト
 
-## Learn more
+```bash
+npm test
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+### テスト構成
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+| ファイル         | 説明                                         |
+| ---------------- | -------------------------------------------- |
+| `jest.config.js` | Jest 設定（preset, 環境, モック）            |
+| `jest.setup.js`  | モック定義（reanimated, gesture-handler 等） |
+| `__tests__/`     | テストファイル                               |
 
-## Join the community
+## ディレクトリ構成
 
-Join our community of developers creating universal apps.
+```
+todo-app/
+├── app/
+│   ├── _layout.tsx       # レイアウト
+│   └── index.tsx         # メイン画面
+├── components/
+│   └── SwipeableRow.tsx  # スワイプ可能な行
+├── __tests__/
+│   ├── index.test.tsx
+│   └── SwipeableRow.test.tsx
+├── jest.config.js
+├── jest.setup.js
+├── babel.config.js
+└── tsconfig.json
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## CI
+
+GitHub Actions でプッシュ・PR 時にテストを自動実行。
+
+```yaml
+# .github/workflows/test.yml
+- npm test
+- npx tsc --noEmit
+```
